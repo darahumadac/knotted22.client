@@ -1,7 +1,7 @@
 import { faL } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 
-const getVenues = async () => {
+const fetchVenues = async () => {
   try {
     const response = await fetch("http://localhost:5190/api/venues");
     const data = await response.json();
@@ -13,11 +13,14 @@ const getVenues = async () => {
 
 const Venues = () => {
   const [venues, setVenues] = useState([]);
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
 
-  useEffect(() => {
-    getVenues()
+  const getVenues = () => {
+    setErr(null);
+    setLoading(true);
+
+    fetchVenues()
       .then((venues) => {
         // console.log(venues);
         setVenues(venues);
@@ -26,7 +29,9 @@ const Venues = () => {
         setErr(err);
       })
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(getVenues, []);
 
   if (err) {
     return (
@@ -37,6 +42,7 @@ const Venues = () => {
           <button
             type="button"
             className="btn btn-outline-primary rounded-pill mt-2"
+            onClick={getVenues}
           >
             <span className="d-inline-block px-2 text-center">OK</span>
           </button>
