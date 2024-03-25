@@ -2,14 +2,19 @@ import { faL } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 
 const getVenues = async () => {
-  const response = await fetch("http://localhost:5190/api/venues");
-  const data = await response.json();
-  return data;
+  try {
+    const response = await fetch("http://localhost:5190/api/venues");
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    throw new Error(err.message);
+  }
 };
 
 const Venues = () => {
   const [venues, setVenues] = useState([]);
   const [isLoading, setLoading] = useState(true);
+  const [err, setErr] = useState(null);
 
   useEffect(() => {
     getVenues()
@@ -18,21 +23,36 @@ const Venues = () => {
         setVenues(venues);
       })
       .catch((err) => {
-        return `something went wrong: ${err}`;
+        setErr(err);
       })
       .finally(() => setLoading(false));
   }, []);
 
-  {
-    if (isLoading) {
-      return (
-        <div className="d-flex justify-content-center align-items-center vh-100">
-          <div className="object-fit-cover spinner-border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+  if (err) {
+    return (
+      <div className="d-flex justify-content-center align-items-center align-middle mt-5">
+        <div className="d-block text-center">
+          <p className="h1 fw-bold">Uh oh!</p>
+          <p className="fs-4">An error occurred. Please try again</p>
+          <button
+            type="button"
+            className="btn btn-outline-primary rounded-pill mt-2"
+          >
+            <span className="d-inline-block px-2 text-center">OK</span>
+          </button>
         </div>
-      );
-    }
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="object-fit-cover spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
